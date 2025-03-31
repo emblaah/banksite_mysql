@@ -57,64 +57,29 @@ export default function Home() {
         body: JSON.stringify(newUser),
       });
 
+      const data = await response.json();
+      console.log("create account data:", data);
+
       if (!response.ok) {
+        alert("Failed to create account: " + data.message);
         throw new Error("Failed to create user");
       }
 
-      const data = await response.text();
-      console.log("create account data:", data);
-
-      alert("User created");
+      alert("Account created successfully");
       console.log("created user", newUser);
-      // setAccountDetails({ newUser });
+      setAccountDetails({
+        createdUsername: username,
+        createdPassword: password,
+      });
       setUsername("");
       setPassword("");
-      // if (loginButtonRef.current) {
-      //   loginButtonRef.current.focus();
-      // }
+      if (loginButtonRef.current) {
+        loginButtonRef.current.focus();
+      }
     } catch (error) {
       console.log("Error creating user", error);
     }
   };
-
-  // const handleCreateAccount = async () => {
-  //   try {
-  //     const response = await fetch(`http://${localhostURL}:3001/users`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         username: username,
-  //         password: password,
-  //       }),
-  //     });
-  //     const data = await response.json();
-  //     console.log("create account data:", data);
-  //     console.log("create account response:", response);
-
-  //     if (response.ok) {
-  //       alert("Account created successfully");
-  //       setAccountDetails({
-  //         createdUsername: username,
-  //         createdPassword: password,
-  //       });
-  //       console.log("createdUsername", username);
-  //       setUsername("");
-  //       setPassword("");
-
-  //       if (loginButtonRef.current) {
-  //         loginButtonRef.current.focus();
-  //       }
-  //     } else {
-  //       alert("Failed to create account: " + data.message);
-  //     }
-  //   } catch (error) {
-  //     console.log("error", error);
-  //     console.error("Error:", error);
-  //     alert("An error occured while creating account");
-  //   }
-  // };
 
   const handleLogout = () => {
     // Clear localStorage and reset state

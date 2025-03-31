@@ -39,6 +39,16 @@ app.post("/users", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Kolla om användare redan finns
+    const sqlCheckUser = "SELECT * FROM users WHERE username = ?";
+    const paramsCheckUser = [username];
+    const existingUser = await query(sqlCheckUser, paramsCheckUser);
+    console.log("existing user", existingUser);
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
     const sqlUser = "INSERT INTO users (username, password) VALUES (?, ?)";
     const params = [username, password];
 
@@ -53,20 +63,12 @@ app.post("/users", async (req, res) => {
     const accountResult = await query(sqlAccount, paramsAccount);
     console.log("account result", accountResult);
 
-    res.send("User and account created");
+    res.json("User and account created");
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
-// Hitta användare baserat på användarnamn och lösenord
-// function getUser(username, password) {
-//   const user = users.find(
-//     (user) => user.username === username && user.password === password
-//   );
-//   return user;
-// }
 
 // Logga in användare baserat på användarnamn och lösenord
 app.post("/sessions", async (req, res) => {
@@ -132,52 +134,12 @@ app.post("/me/accounts", async (req, res) => {
       console.error("Error:", error);
       res.status(401).json({ error: error.message });
     }
-
-    // if (result.length === 0) {
-    //   return res.status(404).json({ error: "Account not found" });
-    // }
-    // const account = accounts.find((account) => account.userId === userId);
-    // if (account) {
-    //   res.json(account);
-    // } else {
-    //   return res.status(404).json({ message: "Account not found" });
-    // }
   } else {
     res.status(401).json({ message: "Invalid session" });
   }
 });
 
-// app.post("/me/accounts/transactions/deposit", async (req, res) => {
-//   const { depositAmount, token } = req.body;
-
-//   const session = sessions.find((session) => session.token === token);
-//   if (!session) {
-//     return res.status(401).json({ message: "Session not found" });
-//   }
-
-//   try {
-//     console.log("session", session);
-//     const { userId } = session;
-
-//     const sql = "UPDATE accounts SET amount = amount + ? WHERE userId = ?";
-//     const params = [depositAmount, userId];
-//     await query(sql, params);
-
-//     res.json({ message: "Deposit successful" });
-
-//     // if (account && session) {
-//     //   account.amount += depositAmount;
-
-//     //   console.log("account after added deposit", account);
-
-//     //   res.json(account);
-//     // } else {
-//     //   res.status(404).send("Account not found");
-//     // }
-//   } catch (error) {
-//     res.status(404).send("Session not found");
-//   }
-
+// Deposit money
 app.post("/me/accounts/transactions/deposit", async (req, res) => {
   const { depositAmount, token } = req.body;
 
@@ -206,6 +168,7 @@ app.post("/me/accounts/transactions/deposit", async (req, res) => {
   }
 });
 
+// Withdraw money
 app.post("/me/accounts/transactions/withdraw", async (req, res) => {
   const { withdrawAmount, token } = req.body;
 
@@ -234,41 +197,6 @@ app.post("/me/accounts/transactions/withdraw", async (req, res) => {
     res.status(404).send("Session not found");
   }
 });
-
-// app.post("/me/accounts/transactions/withdraw", async (req, res) => {
-//   const { withdrawAmount, token } = req.body;
-
-//   const session = sessions.find((session) => session.token === token);
-//   if (!session) {
-//     return res.status(401).json({ message: "Session not found" });
-//   }
-//   try {
-//     const sql = "UPDATE accounts SET amount = amount - ? WHERE userId = ?";
-//     params = [withdrawAmount, session.userId];
-//     await query(sql, params);
-//   } catch (error) {
-//     res.status(404).send("Session not found");
-//   }
-
-//   if (session) {
-//     const userId = session.userId;
-//     const account = accounts.find((account) => account.userId === userId);
-
-//     if (account && session) {
-//       if (account.amount < withdrawAmount) {
-//         res.status(400).send("Insufficient funds");
-//         return;
-//       }
-//       account.amount -= withdrawAmount;
-
-//       res.json(account);
-//     } else {
-//       res.status(404).send("Account not found");
-//     }
-//   } else {
-//     res.status(404).send("Session not found");
-//   }
-// });
 
 // Starta servern
 app.listen(PORT, () => {
