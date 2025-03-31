@@ -61,13 +61,17 @@ export default function Home() {
         throw new Error("Failed to create user");
       }
 
-      const data = await response.json();
+      const data = await response.text();
       console.log("create account data:", data);
-      
+
       alert("User created");
       console.log("created user", newUser);
+      // setAccountDetails({ newUser });
       setUsername("");
       setPassword("");
+      // if (loginButtonRef.current) {
+      //   loginButtonRef.current.focus();
+      // }
     } catch (error) {
       console.log("Error creating user", error);
     }
